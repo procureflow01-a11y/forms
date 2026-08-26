@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Redução de Custo (Independente) - Supply Chain</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --primary-color: #0A5193;
+            --primary-hover: #084278;
+            --bg-light: #F3F4F6;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            --reducao-accent: #059669;
+            --reducao-light: #F0FDF4;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+
+        @keyframes fadeInPage {
+            0% { opacity: 0.1; transform: translateY(4px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+            background-color: var(--bg-light);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-size: 0.9rem;
+            color: #1F2937;
+            animation: fadeInPage 0.3s ease-out forwards;
+        }
+
+        /* Top Header Navbar & Transitions */
+        .top-app-header {
+            background: linear-gradient(135deg, #0A5193 0%, #063968 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand-icon-box {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .header-tabs .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 50rem;
+            padding: 6px 18px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+
+        .header-tabs .nav-link:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .header-tabs .nav-link.active-reajuste {
+            background: #DC2626;
+            color: #ffffff !important;
+            font-weight: 600;
+            border-color: #EF4444;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+        }
+
+        .header-tabs .nav-link.active-reducao {
+            background: #10B981;
+            color: #ffffff !important;
+            font-weight: 600;
+            border-color: #34D399;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+        }
+
+        .style-lang-select {
+            font-size: 0.82rem;
+            background-color: rgba(255, 255, 255, 0.95);
+            cursor: pointer;
+            width: 160px;
+        }
+
+        /* Content & Cards */
+        .main-content {
+            min-height: calc(100vh - 70px);
+            width: 100%;
+        }
+
+        .card {
+            border-radius: 16px !important;
+            box-shadow: var(--card-shadow);
+        }
+
+        .form-section-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 1rem;
+            margin-bottom: 0.6rem;
+            border-bottom: 2px solid #F3F4F6;
+            padding-bottom: 0.3rem;
+        }
+
+        .input-group-text {
+            background-color: #F9FAFB;
+            border-color: #E5E7EB;
+            color: #6B7280;
+            font-size: 0.85rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #D1D5DB;
+            font-size: 0.88rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(10, 81, 147, 0.15);
+        }
+
+        /* Tabela interativa tipo planilha */
+        .table-input {
+            border: 1px solid transparent;
+            background: transparent;
+            width: 100%;
+            padding: 5px 8px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .table-input:focus, .table-input:hover {
+            background: #FFFFFF;
+            border-color: #059669;
+            box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15);
+            outline: none;
+        }
+
+        .table-input:read-only {
+            color: #4B5563;
+            background: rgba(0,0,0,0.02);
+        }
+
+        /* Total Card Highlight para Redução */
+        .total-card-highlight-reducao {
+            background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+            border: 1px solid #BBF7D0;
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 1.2rem;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+        }
+        
+        .total-label-reducao {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #166534;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            margin-bottom: 4px;
+        }
+        
+        .total-value-display-reducao {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #15803D;
+            background: transparent;
+            border: none;
+            width: 100%;
+            padding: 0;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F1F5F9; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CBD5E1; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8; 
+        }
+        
+        .table-wrapper-scroll {
+            overflow-y: auto;
+            position: relative;
+        }
+        .table-modern thead th {
+            position: sticky;
+            top: 0;
+            background-color: #F8FAFC;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: #475569;
+            padding: 10px 12px;
+        }
+
+        .status-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1050;
+            min-width: 320px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .taxa-cambio-readonly {
+            background-color: #F3F4F6;
+            color: #6B7280;
+        }
+
+        .badge-type-reducao {
+            background: #D1FAE5;
+            color: #065F46;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 50rem;
+            border: 1px solid #A7F3D0;
+        }
+
+        .btn-action-hover {
+            transition: all 0.2s ease;
+        }
+        .btn-action-hover:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+    </style>
+
+    <link rel="icon" href="/static/img/logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="/static/css/style_index.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard-compact.css') }}">
+
+</head>
+<body>
+
+    <!-- Header & Navigation -->
+        <nav class="navbar navbar-expand-lg top-app-header py-2 px-3 shadow-sm">
+        <div class="container-fluid px-0 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <div class="brand-badge d-flex align-items-center gap-2 pe-3 border-end border-white border-opacity-25">
+                    <div class="brand-icon-box text-white">
+                        <i class="fas fa-boxes-stacked"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-white mb-0" style="font-size: 1rem; letter-spacing: -0.2px;">Supply Chain</h6>
+                    </div>
+                </div>
+                
+                <div class="nav nav-pills header-tabs gap-2 ms-2">
+                    <a href="reajuste_ind.html" class="nav-link nav-tab-item page-nav-link" id="nav-tab-reajuste">
+                        <i class="fas fa-chart-line me-2"></i><span data-i18n="nav-reajuste">Reajuste de Preço</span>
+                    </a>
+                    <a href="reducao_ind.html" class="nav-link nav-tab-item active-reducao page-nav-link" id="nav-tab-reducao">
+                        <i class="fas fa-arrow-trend-down me-2"></i><span data-i18n="nav-reducao">Redução de Custo</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="d-flex align-items-center gap-2">
+                <select id="language-select" class="form-select form-select-sm rounded-pill border-0 shadow-sm px-3 fw-bold text-secondary style-lang-select" onchange="changeLanguage(this.value)">
+                    <option value="pt-BR" selected>Português (BR)</option>
+                    <option value="en">English</option>
+                    <option value="th">ไทย (Thai)</option>
+                    <option value="de">Deutsch</option>
+                </select>
+                <span class="badge bg-white text-dark border shadow-sm py-2 px-3 rounded-pill d-none d-sm-inline-flex align-items-center">
+                    <i class="far fa-calendar-alt me-2 text-primary"></i> <span id="current-date-display">Hoje</span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+
+    <main class="main-content">
+        <div class="container-fluid px-4 py-4">
+            
+            <!-- Page Header Title -->
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <h4 class="fw-bold text-dark mb-0" data-i18n="main-title">Formulário de Redução de Custo</h4>
+                        <span class="badge-type-reducao small"><i class="fas fa-arrow-down me-1"></i><span data-i18n="badge-type">Saving / Cost Reduction</span></span>
+                    </div>
+                    <p class="text-muted small mb-0" data-i18n="main-subtitle">Cadastro e acompanhamento de savings e oportunidades de negociação</p>
+                </div>
+            </div>
+
+            <!-- MAIN FORM VIEW -->
+            <div id="local-insert-view">
+                <form id="costReductionForm" onsubmit="handleFormSubmit(event)">
+                    <input type="hidden" id="action-type" name="action" value="insert">
+                    <input type="hidden" id="row-id" name="rowId" value="">
+                    
+                    <div class="row g-4">
+                        <!-- Left Panel: Form Details -->
+                        <div class="col-lg-3">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                                    <h6 class="fw-bold mb-0 text-success d-flex align-items-center">
+                                        <i class="fas fa-clipboard-check me-2"></i>
+                                        <span data-i18n="sec-details">Detalhes da Oportunidade</span>
+                                    </h6>
+                                </div>
+                                <div class="card-body p-4 pt-2 custom-scrollbar" style="max-height: 750px; overflow-y: auto;">
+                                    
+                                    <div class="form-section-title mt-2" data-i18n="sec-context">Contexto da Negociação</div>
+                                    <div class="mb-2">
+                                        <label for="BusinessUnit" class="form-label small fw-bold text-muted" data-i18n="lbl-bu">Unidade de Negócio</label>
+                                        <select id="BusinessUnit" name="BusinessUnit" class="form-select form-select-sm" required onchange="updateCurrencyAndExchange()">
+                                            <option value="" disabled selected data-i18n="opt-select">Selecione...</option>
+                                            <option value="Portáteis BR">Portáteis BR</option>
+                                            <option value="Interman">Interman</option>
+                                            <option value="Solo EUA">Solo EUA</option>
+                                            <option value="Solo DEU">Solo DEU</option>
+                                            <option value="Solo CHN">Solo CHN</option>
+                                        </select>
+                                    </div>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-6">
+                                            <label for="Comprador" class="form-label small fw-bold text-muted" data-i18n="lbl-buyer">Comprador</label>
+                                            <input type="text" id="Comprador" name="Comprador" class="form-control form-control-sm" data-i18n-ph="ph-buyer" placeholder="Nome do comprador" required>
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="Categoria" class="form-label small fw-bold text-muted" data-i18n="lbl-category">Categoria</label>
+                                            <select id="Categoria" name="Categoria" class="form-select form-select-sm">
+                                                <option value="ACO CARBO">ACO CARBO</option>
+                                                <option value="ACO TUBO">ACO TUBO</option>
+                                                <option value="AUTOPECA">AUTOPECA</option>
+                                                <option value="BORRACHA">BORRACHA</option>
+                                                <option value="COMPONENT">COMPONENT</option>
+                                                <option value="ELETRICO">ELETRICO</option>
+                                                <option value="EMBALAGEM">EMBALAGEM</option>
+                                                <option value="FUNDIDO">FUNDIDO</option>
+                                                <option value="HIDRAULIC">HIDRAULIC</option>
+                                                <option value="INJETADO">INJETADO</option>
+                                                <option value="PLASTICO">PLASTICO</option>
+                                                <option value="USINADO">USINADO</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-section-title" data-i18n="sec-suppliers">Fornecedores</div>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-6">
+                                            <label for="FornecedorAntes" class="form-label small fw-bold text-muted" data-i18n="lbl-supplier-before">Atual (Antes)</label>
+                                            <input type="text" id="FornecedorAntes" name="FornecedorAntes" class="form-control form-control-sm" data-i18n-ph="ph-supplier-before" placeholder="Fornecedor Atual" required>
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="FornecedorDepois" class="form-label small fw-bold text-muted" data-i18n="lbl-supplier-after">Novo (Depois)</label>
+                                            <input type="text" id="FornecedorDepois" name="FornecedorDepois" class="form-control form-control-sm" data-i18n-ph="ph-supplier-after" placeholder="Novo Fornecedor" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-section-title" data-i18n="sec-justification">Justificativa & Prazos</div>
+                                    <div class="mb-2">
+                                        <label for="ReducaoMotivo" class="form-label small fw-bold text-muted" data-i18n="lbl-reason">Motivo da Redução</label>
+                                        <select id="ReducaoMotivo" name="ReducaoMotivo" class="form-select form-select-sm" required>
+                                            <option value="" disabled selected data-i18n="opt-select">Selecione...</option>
+                                            <option value="Sourcing">Sourcing / Resourcing</option>
+                                            <option value="Melhoria/Mudança de Processo">Melhoria/Mudança de Processo</option>
+                                            <option value="Mudança de M.P">Mudança de M.P (Matéria-Prima)</option>
+                                            <option value="Negociação com fornecedor">Negociação Comercial Direct</option>
+                                            <option value="Redução da Commoditie">Queda de Commodities</option>
+                                            <option value="Variação Cambial">Variação Cambial</option>
+                                            <option value="Cost Avoid">Cost Avoidance</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label for="DataPrevista" class="form-label small fw-bold text-muted" data-i18n="lbl-impl-date">Data de Implementação</label>
+                                        <input type="date" id="DataPrevista" name="DataPrevista" class="form-control form-control-sm" required>
+                                    </div>
+
+                                    <div class="form-section-title" data-i18n="sec-financial">Financeiro & Câmbio</div>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-6">
+                                            <label for="currency-select" class="form-label small fw-bold text-muted" data-i18n="lbl-currency">Moeda</label>
+                                            <select id="currency-select" class="form-select form-select-sm" onchange="changeCurrency(this.value)">
+                                                <option value="BRL">BRL (R$)</option>
+                                                <option value="USD">USD ($)</option>
+                                                <option value="EUR">EUR (€)</option>
+                                                <option value="THB">THB (฿)</option>
+                                                <option value="CNY">CNY (¥)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-6">
+                                            <label for="TaxaCambio" class="form-label small fw-bold text-muted" id="label-taxa-cambio"><span data-i18n="lbl-tax-rate">Taxa</span> (-> BRL)</label>
+                                            <input type="text" id="TaxaCambio" name="TaxaCambio" class="form-control form-control-sm text-end taxa-cambio-readonly" value="1,0000" oninput="calculateTotalReduction()" readonly>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="Moeda" name="Moeda" value="BRL">
+
+                                    <div class="total-card-highlight-reducao mb-3">
+                                        <div class="row">
+                                            <div class="col-7">
+                                                <div class="total-label-reducao" id="label-total-reducao"><span data-i18n="lbl-annual-reduction">Redução Anual Total</span> (BRL)</div>
+                                                <input type="text" id="ReducaoAnualTotal" name="ReducaoAnualTotal" class="total-value-display-reducao" value="R$ 0,00" readonly data-raw-value="0.00">
+                                            </div>
+                                            <div class="col-5 text-end border-start border-success border-opacity-25">
+                                                <div class="total-label-reducao">Saving %</div>
+                                                <input type="text" id="PercentualReducao" name="PercentualReducao" class="total-value-display-reducao text-end" value="0,00%" readonly style="font-size: 1.2rem; color: #047857;">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="Comentarios" class="form-label small fw-bold text-muted" data-i18n="lbl-comments">Comentários Finais</label>
+                                        <textarea id="Comentarios" name="Comentarios" class="form-control form-control-sm" rows="2" data-i18n-ph="ph-comments" placeholder="Observações sobre o saving"></textarea>
+                                    </div>
+
+                                    <div id="form-actions" class="mt-4">
+                                        <button type="submit" id="submit-button" class="btn btn-success w-100 fw-bold py-2 rounded-pill shadow-sm btn-action-hover">
+                                            <i class="fas fa-save me-2"></i><span data-i18n="btn-save">Salvar Oportunidade</span>
+                                        </button>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Materials List Table -->
+                        <div class="col-lg-9">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+                                    <h6 class="fw-bold mb-0 text-dark d-flex align-items-center">
+                                        <i class="fas fa-list me-2 text-success"></i>
+                                        <span data-i18n="sec-materials-list">Lista de Materiais (SKUs)</span>
+                                    </h6>
+                                    <div>
+                                        <button type="button" class="btn btn-sm btn-outline-success me-2 rounded-pill px-3 fw-semibold btn-action-hover" onclick="addRow()">
+                                            <i class="fas fa-plus me-1"></i> <span data-i18n="btn-add-item">Adicionar Linha</span>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-semibold btn-action-hover" onclick="removeLastRow()">
+                                            <i class="fas fa-trash me-1"></i> <span data-i18n="btn-remove">Remover</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="table-responsive table-wrapper-scroll custom-scrollbar" style="max-height: 680px; border: 1px solid #E2E8F0; border-radius: 12px;">
+                                        <table class="table table-hover align-middle mb-0 table-modern" id="local-material-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 40px;">#</th>
+                                                    <th style="width: 14%;" id="th-code-reducao" data-i18n="th-code">Cód. Mat.</th>
+                                                    <th style="width: 26%;" id="th-desc-reducao" data-i18n="th-desc">Descrição</th>
+                                                    <th id="th-preco-antes" style="width: 14%;" class="text-end">Preço Antes (R$)</th>
+                                                    <th id="th-preco-depois" style="width: 14%;" class="text-end text-success">Preço Depois (R$)</th>
+                                                    <th id="th-volume-anual" style="width: 12%;" class="text-end" data-i18n="th-vol">Vol. Anual</th>
+                                                    <th id="th-reducao-anual" style="width: 16%;" class="text-end text-success fw-bold">Redução Anual</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="mt-3 text-muted small d-flex align-items-center justify-content-between px-1">
+                                        <div>
+                                            <i class="fas fa-lightbulb text-warning me-1"></i> 
+                                            <span data-i18n="tip-text">Preencha Preço Antes, Preço Depois e Volume para calcular. Você pode copiar linhas do Excel e colar na tabela.</span>
+                                        </div>
+                                        <span class="badge bg-light text-secondary border"><span data-i18n="badge-total-skus">Total SKUs:</span> <span id="row-counter-display">0</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="post-status-toast" class="toast align-items-center text-white bg-primary border-0 status-toast" role="alert">
+        <div class="d-flex">
+            <div class="toast-body fw-bold" id="toast-message">Processando...</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="hideToast()"></button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Supabase Connection Settings
+        const SUPABASE_URL = "https://fqnfyfwcntwhbwuxdmwa.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_YKflgiQ6wQv8qxQe_1lqcw_W4gfHVpt";
+        const _supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+        // Dictionary for i18n
+        const translations = {
+            'pt-BR': {
+                'nav-reajuste': 'Reajuste de Preço',
+                'nav-reducao': 'Redução de Custo',
+                'main-title': 'Formulário de Redução de Custo',
+                'main-subtitle': 'Cadastro e acompanhamento de savings e oportunidades de negociação',
+                'badge-type': 'Saving / Cost Reduction',
+                'sec-details': 'Detalhes da Oportunidade',
+                'sec-context': 'Contexto da Negociação',
+                'lbl-bu': 'Unidade de Negócio',
+                'opt-select': 'Selecione...',
+                'lbl-buyer': 'Comprador',
+                'ph-buyer': 'Nome do comprador',
+                'lbl-category': 'Categoria',
+                'sec-suppliers': 'Fornecedores',
+                'lbl-supplier-before': 'Atual (Antes)',
+                'ph-supplier-before': 'Fornecedor Atual',
+                'lbl-supplier-after': 'Novo (Depois)',
+                'ph-supplier-after': 'Novo Fornecedor',
+                'sec-justification': 'Justificativa & Prazos',
+                'lbl-reason': 'Motivo da Redução',
+                'lbl-impl-date': 'Data de Implementação',
+                'sec-financial': 'Financeiro & Câmbio',
+                'lbl-currency': 'Moeda',
+                'lbl-tax-rate': 'Taxa',
+                'lbl-annual-reduction': 'Redução Anual Total',
+                'lbl-comments': 'Comentários Finais',
+                'ph-comments': 'Observações sobre o saving',
+                'btn-save': 'Salvar Oportunidade',
+                'sec-materials-list': 'Lista de Materiais (SKUs)',
+                'btn-add-item': 'Adicionar Linha',
+                'btn-remove': 'Remover',
+                'th-code': 'Cód. Mat.',
+                'th-desc': 'Descrição',
+                'th-price-before': 'Preço Antes',
+                'th-price-after': 'Preço Depois',
+                'th-vol': 'Vol. Anual',
+                'th-reduction-total': 'Redução Anual',
+                'tip-text': 'Preencha Preço Antes, Preço Depois e Volume para calcular. Você pode copiar linhas do Excel e colar na tabela.',
+                'badge-total-skus': 'Total SKUs:',
+                'ph-mat-code': 'SKU / Cód.',
+                'ph-mat-desc': 'Descrição do produto'
+            },
+            'en': {
+                'nav-reajuste': 'Price Adjustment',
+                'nav-reducao': 'Cost Reduction',
+                'main-title': 'Cost Reduction Form',
+                'main-subtitle': 'Savings registration and negotiation opportunities tracking',
+                'badge-type': 'Saving / Cost Reduction',
+                'sec-details': 'Opportunity Details',
+                'sec-context': 'Negotiation Context',
+                'lbl-bu': 'Business Unit',
+                'opt-select': 'Select...',
+                'lbl-buyer': 'Buyer',
+                'ph-buyer': 'Buyer name',
+                'lbl-category': 'Category',
+                'sec-suppliers': 'Suppliers',
+                'lbl-supplier-before': 'Current (Before)',
+                'ph-supplier-before': 'Current Supplier',
+                'lbl-supplier-after': 'New (After)',
+                'ph-supplier-after': 'New Supplier',
+                'sec-justification': 'Justification & Deadlines',
+                'lbl-reason': 'Reduction Reason',
+                'lbl-impl-date': 'Implementation Date',
+                'sec-financial': 'Financial & Exchange',
+                'lbl-currency': 'Currency',
+                'lbl-tax-rate': 'Rate',
+                'lbl-annual-reduction': 'Total Annual Reduction',
+                'lbl-comments': 'Final Comments',
+                'ph-comments': 'Savings observations',
+                'btn-save': 'Save Opportunity',
+                'sec-materials-list': 'Materials List (SKUs)',
+                'btn-add-item': 'Add Row',
+                'btn-remove': 'Remove',
+                'th-code': 'Mat. Code',
+                'th-desc': 'Description',
+                'th-price-before': 'Price Before',
+                'th-price-after': 'Price After',
+                'th-vol': 'Annual Vol',
+                'th-reduction-total': 'Annual Reduction',
+                'tip-text': 'Fill in Price Before, Price After, and Volume to compute. You can copy rows from Excel and paste directly.',
+                'badge-total-skus': 'Total SKUs:',
+                'ph-mat-code': 'SKU / Code',
+                'ph-mat-desc': 'Product description'
+            },
+            'th': {
+                'nav-reajuste': 'ปรับราคาขึ้น',
+                'nav-reducao': 'ลดต้นทุน',
+                'main-title': 'แบบฟอร์มการลดต้นทุน',
+                'main-subtitle': 'การบันทึกและติดตามผลการประหยัดต้นทุน',
+                'badge-type': 'การประหยัด / Cost Reduction',
+                'sec-details': 'รายละเอียดโอกาส',
+                'sec-context': 'บริบทการเจรจา',
+                'lbl-bu': 'หน่วยธุรกิจ',
+                'opt-select': 'เลือก...',
+                'lbl-buyer': 'ผู้จัดซื้อ',
+                'ph-buyer': 'ชื่อผู้จัดซื้อ',
+                'lbl-category': 'หมวดหมู่',
+                'sec-suppliers': 'ซัพพลายเออร์',
+                'lbl-supplier-before': 'ปัจจุบัน (ก่อน)',
+                'ph-supplier-before': 'ซัพพลายเออร์ปัจจุบัน',
+                'lbl-supplier-after': 'ใหม่ (หลัง)',
+                'ph-supplier-after': 'ซัพพลายเออร์ใหม่',
+                'sec-justification': 'เหตุผลและกำหนดเวลา',
+                'lbl-reason': 'เหตุผลการลดราคา',
+                'lbl-impl-date': 'วันที่เริ่มมีผล',
+                'sec-financial': 'การเงินและอัตราแลกเปลี่ยน',
+                'lbl-currency': 'สกุลเงิน',
+                'lbl-tax-rate': 'อัตรา',
+                'lbl-annual-reduction': 'การลดราคาต่อปีรวม',
+                'lbl-comments': 'ความคิดเห็น',
+                'ph-comments': 'หมายเหตุการประหยัด',
+                'btn-save': 'บันทึกรายการ',
+                'sec-materials-list': 'รายการวัตถุดิบ (SKUs)',
+                'btn-add-item': 'เพิ่มแถว',
+                'btn-remove': 'ลบ',
+                'th-code': 'รหัส',
+                'th-desc': 'คำอธิบาย',
+                'th-price-before': 'ราคาก่อนหน้า',
+                'th-price-after': 'ราคาใหม่',
+                'th-vol': 'ปริมาณต่อปี',
+                'th-reduction-total': 'ลดลงต่อปี',
+                'tip-text': 'กรอกราคาก่อน ราคาหลัง และปริมาณเพื่อคำนวณ คัดลอกจาก Excel ได้',
+                'badge-total-skus': 'รวม SKUs:',
+                'ph-mat-code': 'SKU / รหัส',
+                'ph-mat-desc': 'คำอธิบายสินค้า'
+            },
+            'de': {
+                'nav-reajuste': 'Preisanpassung',
+                'nav-reducao': 'Kostenreduzierung',
+                'main-title': 'Kostenreduzierungsformular',
+                'main-subtitle': 'Erfassung und Verfolgung von Einsparungspotenzialen',
+                'badge-type': 'Einsparung / Cost Reduction',
+                'sec-details': 'Chancendetails',
+                'sec-context': 'Verhandlungskontext',
+                'lbl-bu': 'Geschäftsbereich',
+                'opt-select': 'Auswählen...',
+                'lbl-buyer': 'Einkäufer',
+                'ph-buyer': 'Name des Einkäufers',
+                'lbl-category': 'Kategorie',
+                'sec-suppliers': 'Lieferanten',
+                'lbl-supplier-before': 'Aktuell (Vorher)',
+                'ph-supplier-before': 'Aktueller Lieferant',
+                'lbl-supplier-after': 'Neu (Nachher)',
+                'ph-supplier-after': 'Neuer Lieferant',
+                'sec-justification': 'Begründung & Fristen',
+                'lbl-reason': 'Reduzierungsgrund',
+                'lbl-impl-date': 'Implementierungsdatum',
+                'sec-financial': 'Finanzen & Währung',
+                'lbl-currency': 'Währung',
+                'lbl-tax-rate': 'Kurs',
+                'lbl-annual-reduction': 'Gesamte Jahresreduzierung',
+                'lbl-comments': 'Abschlusskommentare',
+                'ph-comments': 'Bemerkungen zur Einsparung',
+                'btn-save': 'Chance Speichern',
+                'sec-materials-list': 'Materialliste (SKUs)',
+                'btn-add-item': 'Zeile Hinzufügen',
+                'btn-remove': 'Entfernen',
+                'th-code': 'Mat.-Code',
+                'th-desc': 'Beschreibung',
+                'th-price-before': 'Preis Vorher',
+                'th-price-after': 'Preis Nachher',
+                'th-vol': 'Jahresvolumen',
+                'th-reduction-total': 'Jahresreduzierung',
+                'tip-text': 'Geben Sie Vorher-Preis, Nachher-Preis und Volumen ein. Sie können Excel-Zeilen einfügen.',
+                'badge-total-skus': 'Gesamt SKUs:',
+                'ph-mat-code': 'SKU / Code',
+                'ph-mat-desc': 'Produktbeschreibung'
+            }
+        };
+
+        let currentLang = 'pt-BR';
+        let currentCurrencySymbol = 'R$';
+
+        function getTranslation(key) {
+            const dict = translations[currentLang] || translations['pt-BR'];
+            return dict[key] || (translations['pt-BR'][key] || '');
+        }
+
+        // Initialize page
+        function initPage() {
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('pt-BR');
+            const dateDisplay = document.getElementById('current-date-display');
+            if (dateDisplay) dateDisplay.innerText = dateStr;
+
+            const tbody = document.querySelector('#local-material-table tbody');
+            if (tbody && tbody.children.length === 0) {
+                for (let i = 0; i < 3; i++) {
+                    addRow();
+                }
+            }
+            calculateTotalReduction();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPage);
+        } else {
+            initPage();
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const dict = translations[lang] || translations['pt-BR'];
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) el.innerText = dict[key];
+            });
+
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if (dict[key]) el.placeholder = dict[key];
+            });
+
+            const phCode = getTranslation('ph-mat-code');
+            const phDesc = getTranslation('ph-mat-desc');
+            document.querySelectorAll('.mat-code').forEach(input => input.placeholder = phCode);
+            document.querySelectorAll('.mat-desc').forEach(input => input.placeholder = phDesc);
+
+            changeCurrency(document.getElementById('currency-select')?.value || 'BRL');
+        }
+
+        function changeCurrency(curr) {
+            document.getElementById('Moeda').value = curr;
+            const symbols = { 'BRL': 'R$', 'USD': '$', 'EUR': '€', 'THB': '฿', 'CNY': '¥' };
+            currentCurrencySymbol = symbols[curr] || 'R$';
+            
+            const thBefore = getTranslation('th-price-before');
+            const thAfter = getTranslation('th-price-after');
+            const thReduc = getTranslation('th-reduction-total');
+            const lblAnnual = getTranslation('lbl-annual-reduction');
+            const lblRate = getTranslation('lbl-tax-rate');
+
+            const elBefore = document.getElementById('th-preco-antes');
+            if (elBefore) elBefore.innerText = `${thBefore} (${currentCurrencySymbol})`;
+
+            const elAfter = document.getElementById('th-preco-depois');
+            if (elAfter) elAfter.innerText = `${thAfter} (${currentCurrencySymbol})`;
+
+            const elReducHeader = document.getElementById('th-reducao-anual');
+            if (elReducHeader) elReducHeader.innerText = `${thReduc} (${currentCurrencySymbol})`;
+
+            const elTaxa = document.getElementById('label-taxa-cambio');
+            if (elTaxa) elTaxa.innerHTML = `<span data-i18n="lbl-tax-rate">${lblRate}</span> (-> ${curr})`;
+
+            const elTotalLabel = document.getElementById('label-total-reducao');
+            if (elTotalLabel) elTotalLabel.innerHTML = `<span data-i18n="lbl-annual-reduction">${lblAnnual}</span> (${curr})`;
+            
+            calculateTotalReduction();
+        }
+
+        function updateCurrencyAndExchange() {
+            const bu = document.getElementById('BusinessUnit').value;
+            const currSelect = document.getElementById('currency-select');
+            if (bu === 'Solo DEU') {
+                currSelect.value = 'EUR';
+            } else if (bu === 'Solo CHN') {
+                currSelect.value = 'CNY';
+            } else if (bu === 'Interman' || bu === 'Solo EUA') {
+                currSelect.value = 'USD';
+            } else {
+                currSelect.value = 'BRL';
+            }
+            changeCurrency(currSelect.value);
+        }
+
+        function addRow() {
+            const tbody = document.querySelector('#local-material-table tbody');
+            if (!tbody) return;
+            const rowCount = tbody.children.length + 1;
+            const tr = document.createElement('tr');
+            
+            const phCode = getTranslation('ph-mat-code') || 'SKU / Cód.';
+            const phDesc = getTranslation('ph-mat-desc') || 'Descrição do produto';
+
+            tr.innerHTML = `
+                <td class="text-muted fw-bold text-center align-middle" style="font-size: 0.8rem;">${rowCount}</td>
+                <td><input type="text" class="table-input mat-code" placeholder="${phCode}"></td>
+                <td><input type="text" class="table-input mat-desc" placeholder="${phDesc}"></td>
+                <td><input type="number" step="0.0001" class="table-input text-end mat-price-before" placeholder="0.00" oninput="calculateTotalReduction()"></td>
+                <td><input type="number" step="0.0001" class="table-input text-end mat-price-after text-success fw-semibold" placeholder="0.00" oninput="calculateTotalReduction()"></td>
+                <td><input type="number" step="1" class="table-input text-end mat-vol" placeholder="0" oninput="calculateTotalReduction()"></td>
+                <td><input type="text" class="table-input text-end mat-reduction-total text-success fw-bold" readonly value="0.00"></td>
+            `;
+
+            tbody.appendChild(tr);
+            const counterDisplay = document.getElementById('row-counter-display');
+            if (counterDisplay) counterDisplay.innerText = tbody.children.length;
+            attachExcelPasteListener(tr);
+        }
+
+        function removeLastRow() {
+            const tbody = document.querySelector('#local-material-table tbody');
+            if (tbody && tbody.children.length > 1) {
+                tbody.removeChild(tbody.lastChild);
+                const counterDisplay = document.getElementById('row-counter-display');
+                if (counterDisplay) counterDisplay.innerText = tbody.children.length;
+                calculateTotalReduction();
+            }
+        }
+
+        function attachExcelPasteListener(row) {
+            row.querySelectorAll('.table-input').forEach(input => {
+                input.addEventListener('paste', (e) => {
+                    const clipboardData = e.clipboardData || window.clipboardData;
+                    const pastedData = clipboardData.getData('Text');
+                    
+                    if (pastedData && (pastedData.includes('\t') || pastedData.includes('\n'))) {
+                        e.preventDefault();
+                        const rows = pastedData.split(/\r\n|\n|\r/);
+                        const tbody = document.querySelector('#local-material-table tbody');
+                        let currentRowIndex = Array.from(tbody.children).indexOf(row);
+
+                        rows.forEach((rowData, rIdx) => {
+                            if (!rowData.trim()) return;
+                            let targetRow = tbody.children[currentRowIndex + rIdx];
+                            if (!targetRow) {
+                                addRow();
+                                targetRow = tbody.lastChild;
+                            }
+                            const cells = rowData.split('\t');
+                            const inputs = targetRow.querySelectorAll('.table-input');
+                            
+                            cells.forEach((val, cIdx) => {
+                                if (inputs[cIdx] && !inputs[cIdx].readOnly) {
+                                    let cleanVal = val.trim().replace('R$', '').replace('$', '').replace(/\./g, '').replace(',', '.');
+                                    inputs[cIdx].value = cleanVal;
+                                }
+                            });
+                        });
+                        calculateTotalReduction();
+                    }
+                });
+            });
+        }
+
+        
+                                    setTimeout(() => {
+                window.location.href = `mailto:${recipient}?subject=${subject}&body=${encodeURIComponent(bodyPlain)}`;
+            }, 300);
+        }
+
+        function calculateTotalReduction() {
+            const rows = document.querySelectorAll('#local-material-table tbody tr');
+            let sumReductionTotal = 0;
+            let sumBeforeTotal = 0;
+
+            rows.forEach(tr => {
+                const priceBefore = parseFloat(tr.querySelector('.mat-price-before')?.value || 0);
+                const priceAfter = parseFloat(tr.querySelector('.mat-price-after')?.value || 0);
+                const vol = parseFloat(tr.querySelector('.mat-vol')?.value || 0);
+
+                const itemReduction = (priceBefore - priceAfter) * vol;
+                const itemBefore = priceBefore * vol;
+
+                if (tr.querySelector('.mat-reduction-total')) {
+                    tr.querySelector('.mat-reduction-total').value = itemReduction.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
+
+                sumReductionTotal += itemReduction;
+                sumBeforeTotal += itemBefore;
+            });
+
+            const savingPercentage = sumBeforeTotal > 0 ? (sumReductionTotal / sumBeforeTotal) * 100 : 0;
+            const exchangeRate = parseFloat((document.getElementById('TaxaCambio')?.value || '1').replace(',', '.')) || 1.0;
+            const totalAnnualReduction = sumReductionTotal * exchangeRate;
+
+            const elPercent = document.getElementById('PercentualReducao');
+            if (elPercent) elPercent.value = `${savingPercentage.toFixed(2)}%`;
+            
+            const totalDisplay = document.getElementById('ReducaoAnualTotal');
+            if (totalDisplay) {
+                totalDisplay.value = `${currentCurrencySymbol} ${totalAnnualReduction.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                totalDisplay.setAttribute('data-raw-value', totalAnnualReduction.toFixed(2));
+            }
+
+            // Validação estrita: Botão só libera se tiver ao menos 1 item válido E valor <> 0,00
+            let validMaterialsCount = 0;
+            rows.forEach(tr => {
+                const code = tr.querySelector('.mat-code')?.value.trim() || '';
+                const desc = tr.querySelector('.mat-desc')?.value.trim() || '';
+                const priceBefore = parseFloat(tr.querySelector('.mat-price-before')?.value || 0);
+                const priceAfter = parseFloat(tr.querySelector('.mat-price-after')?.value || 0);
+                if (code !== '' || desc !== '' || priceBefore > 0 || priceAfter > 0) {
+                    validMaterialsCount++;
+                }
+            });
+
+            const submitBtn = document.getElementById('submit-button');
+            const actionType = document.getElementById('action-type')?.value || 'insert';
+            if (submitBtn && actionType === 'insert') {
+                const isValueValid = Math.abs(totalAnnualReduction) > 0.0001;
+                const isValid = isValueValid && validMaterialsCount > 0;
+                if (isValid) {
+                    submitBtn.disabled = false;
+                    submitBtn.className = 'btn btn-success w-100 fw-bold py-2 rounded-pill shadow-sm btn-action-hover';
+                    submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Salvar Oportunidade';
+                } else {
+                    submitBtn.disabled = true;
+                    submitBtn.className = 'btn btn-secondary w-100 fw-bold py-2 rounded-pill shadow-sm disabled';
+                    if (validMaterialsCount === 0) {
+                        submitBtn.innerHTML = '<i class="fas fa-lock me-2"></i>Adicione ao menos 1 item na lista';
+                    } else {
+                        submitBtn.innerHTML = '<i class="fas fa-lock me-2"></i>O valor da redução deve ser diferente de R$ 0,00';
+                    }
+                }
+            }
+        }
+
+        // Submissão Direta para o Supabase
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            const toast = document.getElementById('post-status-toast');
+            const toastMsg = document.getElementById('toast-message');
+
+            if (toast && toastMsg) {
+                toastMsg.innerText = 'Enviando redução de custo para o Supabase...';
+                toast.style.display = 'block';
+                toast.classList.remove('bg-danger', 'bg-success');
+                toast.classList.add('bg-primary');
+            }
+
+            const rows = document.querySelectorAll('#local-material-table tbody tr');
+            const materialItems = [];
+            rows.forEach((tr, index) => {
+                const code = tr.querySelector('.mat-code')?.value || '';
+                const desc = tr.querySelector('.mat-desc')?.value || '';
+                const priceBefore = parseFloat(tr.querySelector('.mat-price-before')?.value) || 0;
+                const priceAfter = parseFloat(tr.querySelector('.mat-price-after')?.value) || 0;
+                const vol = parseFloat(tr.querySelector('.mat-vol')?.value) || 0;
+
+                if (code || desc || priceBefore || priceAfter) {
+                    materialItems.push({
+                        item_num: index + 1,
+                        cod_material: code,
+                        descricao: desc,
+                        preco_antes: priceBefore,
+                        preco_depois: priceAfter,
+                        volume_anual: vol,
+                        reducao_anual: (priceBefore - priceAfter) * vol
+                    });
+                }
+            });
+
+            if (materialItems.length === 0) {
+                alert("Atenção: É necessário incluir ao menos 1 item válido na lista de materiais antes de salvar.");
+                if (toast) toast.style.display = 'none';
+                return;
+            }
+            if (Math.abs(parseFloat(document.getElementById('ReducaoAnualTotal')?.getAttribute('data-raw-value') || 0)) <= 0.0001) {
+                alert("Atenção: O valor total da redução deve ser diferente de R$ 0,00 para salvar.");
+                if (toast) toast.style.display = 'none';
+                return;
+            }
+
+            const parentData = {
+                date_reg: new Date().toISOString().split('T')[0],
+                data_prevista: document.getElementById('DataPrevista').value,
+                business_unit: document.getElementById('BusinessUnit').value,
+                comprador: document.getElementById('Comprador').value,
+                categoria: document.getElementById('Categoria').value,
+                fornecedor_antes: document.getElementById('FornecedorAntes').value,
+                fornecedor_depois: document.getElementById('FornecedorDepois').value,
+                reducao_motivo: document.getElementById('ReducaoMotivo').value,
+                percentual_reducao: parseFloat(document.getElementById('PercentualReducao').value.replace('%', '').replace(',', '.')) || 0,
+                reducao_anual_total: parseFloat(document.getElementById('ReducaoAnualTotal').getAttribute('data-raw-value')) || 0,
+                moeda: document.getElementById('Moeda').value,
+                taxa_cambio: parseFloat(document.getElementById('TaxaCambio').value.replace(',', '.')) || 1.0,
+                comentarios: document.getElementById('Comentarios').value
+            };
+
+            parentData.material_list = JSON.stringify(materialItems);
+
+            if (!_supabase) {
+                if (toastMsg) {
+                    toastMsg.innerText = 'Demonstração: Dados validados! (Supabase SDK indisponível offline)';
+                    toast.classList.remove('bg-primary');
+                    toast.classList.add('bg-success');
+                    setTimeout(() => hideToast(), 3000);
+                }
+                return;
+            }
+
+            try {
+                const { data, error } = await _supabase
+                    .from('reducao_custos')
+                    .insert([parentData])
+                    .select();
+
+                if (error) throw error;
+
+                const parentId = data[0].id;
+                if (materialItems.length > 0) {
+                    const itemsWithParent = materialItems.map(item => ({ ...item, reducao_id: parentId }));
+                    await _supabase.from('reducao_materiais').insert(itemsWithParent);
+                }
+
+                const submitButton = document.getElementById('submit-button');
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.className = 'btn btn-secondary w-100 fw-bold py-2 rounded-pill shadow-sm disabled';
+                    submitButton.innerHTML = '<i class="fas fa-check me-2"></i>Salvo com Sucesso!';
+                }
+
+                if (toastMsg) {
+                    toastMsg.innerText = 'Redução de custo salva com sucesso no Supabase!';
+                    toast.classList.remove('bg-primary');
+                    toast.classList.add('bg-success');
+                }
+
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } catch (err) {
+                console.error('Erro ao salvar no Supabase:', err);
+                if (toastMsg) {
+                    toastMsg.innerText = 'Erro Supabase: ' + (err.message || 'Falha na gravação');
+                    toast.classList.remove('bg-primary');
+                    toast.classList.add('bg-danger');
+                }
+            }
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('post-status-toast');
+            if (toast) toast.style.display = 'none';
+        }
+    </script>
+    <script src="/static/scripts/user.js"></script>
+</body>
+</html>

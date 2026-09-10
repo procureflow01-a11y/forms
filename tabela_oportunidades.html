@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opportunities Table | Supply Chain KPI</title>
+    <!-- Fonts & Libraries -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+            color: #1E293B;
+            min-height: 100vh;
+        }
+
+        /* Top Header Navbar - Identical to index(4).html */
+        .top-app-header {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            border-bottom: 3px solid #10B981;
+        }
+        
+        .brand-icon-box {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .header-tabs .nav-tab-item {
+            color: #94A3B8;
+            font-weight: 600;
+            font-size: 0.88rem;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .header-tabs .nav-tab-item:hover {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .header-tabs .nav-tab-item.active-reducao {
+            color: #FFFFFF;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-type-reducao {
+            background: rgba(16, 185, 129, 0.15);
+            color: #059669;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 50rem;
+            border: 1px solid #A7F3D0;
+        }
+
+        /* Table Card Styling */
+        .table-custom-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+        }
+
+        .table-custom tr {
+            height: 42px !important;
+        }
+
+        .table-custom th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 700;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 12px !important;
+            border-bottom: 2px solid #cbd5e1;
+            white-space: nowrap !important;
+            vertical-align: middle !important;
+        }
+
+        .table-custom td {
+            padding: 6px 12px !important;
+            vertical-align: middle !important;
+            border-bottom: 1px solid #f1f5f9;
+            white-space: nowrap !important;
+        }
+
+        .table-custom tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .btn-table-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 26px;
+            padding: 0 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 13px;
+            border: 1px solid #3b82f6;
+            color: #1d4ed8;
+            background-color: #eff6ff;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            line-height: 1;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            text-decoration: none;
+        }
+        .btn-table-action:hover {
+            background-color: #3b82f6;
+            color: #ffffff;
+        }
+
+        .btn-table-obs {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            border-radius: 50%;
+            border: 1px solid #64748b;
+            color: #334155;
+            background-color: #f1f5f9;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            line-height: 1;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            text-decoration: none;
+        }
+        .btn-table-obs:hover {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+            color: #ffffff;
+        }
+
+        .btn-table-delete {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            font-size: 0.75rem;
+            border-radius: 50%;
+            border: 1px solid #fca5a5;
+            color: #dc2626;
+            background-color: #fef2f2;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            line-height: 1;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            text-decoration: none;
+        }
+        .btn-table-delete:hover {
+            background-color: #dc2626;
+            border-color: #dc2626;
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        .btn-filter-tab {
+            font-size: 0.82rem;
+            transition: all 0.2s ease;
+        }
+
+        .style-lang-select {
+            background-color: rgba(255, 255, 255, 0.95);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header & Navigation (Exact index(4).html layout) -->
+    <nav class="navbar navbar-expand-lg top-app-header py-2 px-3 shadow-sm">
+        <div class="container-fluid px-0 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <div class="brand-badge d-flex align-items-center gap-2 pe-3 border-end border-white border-opacity-25">
+                    <div class="brand-icon-box text-white">
+                        <i class="fas fa-boxes-stacked"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-white mb-0" style="font-size: 1rem; letter-spacing: -0.2px;">Supply Chain</h6>
+                    </div>
+                </div>
+                
+                <div class="nav nav-pills header-tabs gap-2 ms-2">
+                    <a href="reajuste_ind.html" class="nav-link nav-tab-item page-nav-link" id="nav-tab-reajuste">
+                        <i class="fas fa-chart-line me-2"></i><span data-i18n="nav-reajuste">Price Adjustment</span>
+                    </a>
+                    <a href="index.html" class="nav-link nav-tab-item page-nav-link" id="nav-tab-reducao">
+                        <i class="fas fa-arrow-trend-down me-2"></i><span data-i18n="nav-reducao">Cost Reduction</span>
+                    </a>
+                    <a href="tabela_oportunidades.html" class="nav-link nav-tab-item active-reducao page-nav-link" id="nav-tab-tabela">
+                        <i class="fas fa-table-list me-2"></i><span data-i18n="nav-tabela">Records Table</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="d-flex align-items-center gap-2">
+                <select id="language-select" class="form-select form-select-sm rounded-pill border-0 shadow-sm px-3 fw-bold text-secondary style-lang-select" onchange="changeLanguage(this.value)">
+                    <option value="en" selected>English</option>
+                    <option value="pt-BR">Português (BR)</option>
+                    <option value="th">ไทย (Thai)</option>
+                    <option value="de">Deutsch</option>
+                </select>
+                <span class="badge bg-white text-dark border shadow-sm py-2 px-3 rounded-pill d-none d-sm-inline-flex align-items-center">
+                    <i class="far fa-calendar-alt me-2 text-primary"></i> <span id="current-date-display">Today</span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container-fluid px-4 py-4">
+        
+        <!-- Page Header Title -->
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <h4 class="fw-bold text-dark mb-0" data-i18n="main-tabela-title">Opportunities Table</h4>
+                    <span class="badge-type-reducao small">
+                        <i class="fas fa-filter me-1"></i><span data-i18n="badge-filtered">Except Portáteis BR</span>
+                    </span>
+                </div>
+                <p class="text-muted small mb-0" data-i18n="main-tabela-subtitle">Detailed query of Cost Reduction and Cost Avoidance records (Interman, Solo EUA, Solo DEU, Solo CHN)</p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <a href="index.html" class="btn btn-outline-success btn-sm rounded-pill fw-bold px-3">
+                    <i class="fas fa-plus me-1"></i> <span data-i18n="btn-new-reduction">New Reduction</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- TABELA DETALHADA DE REGISTROS -->
+        <div class="row">
+            <div class="col-12">
+                <div class="table-custom-card">
+                    <!-- Controls Bar -->
+                    <div class="p-4 border-bottom bg-white d-flex flex-wrap justify-content-between align-items-center gap-3">
+                        <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <div>
+                                <label class="small text-muted mb-1 d-block fw-bold"><i class="fas fa-building text-primary me-1"></i><span data-i18n="lbl-bu">Business Unit</span></label>
+                                <select id="filter-bu" class="form-select form-select-sm border bg-light fw-bold text-dark rounded-3" onchange="applyFilters()" style="min-width: 220px;">
+                                    <option value="Todas" selected data-i18n="opt-all-except-br">All (Except Portáteis BR)</option>
+                                    <option value="Interman">Interman</option>
+                                    <option value="Solo EUA">Solo EUA</option>
+                                    <option value="Solo DEU">Solo DEU</option>
+                                    <option value="Solo CHN">Solo CHN</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="small text-muted mb-1 d-block fw-bold"><i class="fas fa-search text-primary me-1"></i><span data-i18n="lbl-search">Search</span></label>
+                                <div class="input-group input-group-sm" style="width: 260px;">
+                                    <input type="text" id="inputTableSearch" class="form-control bg-light" oninput="applyFilters()" data-i18n-ph="ph-search" placeholder="Buyer, supplier, category...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-primary active btn-filter-tab fw-bold rounded-pill-start px-3" onclick="setTableTypeFilter('todos', this)">
+                                    <i class="fas fa-list me-1"></i> <span data-i18n="tab-all">All</span>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-filter-tab fw-bold px-3" onclick="setTableTypeFilter('reduction', this)">
+                                    <i class="fas fa-arrow-down-long text-success me-1"></i> <span data-i18n="tab-reductions">Reductions</span>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-filter-tab fw-bold rounded-pill-end px-3" onclick="setTableTypeFilter('costavoidance', this)">
+                                    <i class="fas fa-hand-holding-dollar text-primary me-1"></i> <span data-i18n="tab-reajustes">Adjustments</span>
+                                </button>
+                            </div>
+
+                            <button type="button" class="btn btn-sm btn-outline-success fw-bold rounded-pill px-3 ms-1" onclick="exportCSV()">
+                                <i class="fas fa-file-csv me-1"></i> <span data-i18n="btn-export-csv">Export CSV</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Responsive Table -->
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" style="width: 45px;">#</th>
+                                    <th style="width: 140px;" data-i18n="th-type">Type</th>
+                                    <th style="width: 110px;" data-i18n="th-date">Effective Date</th>
+                                    <th style="width: 120px;" data-i18n="th-bu">Business Unit</th>
+                                    <th data-i18n="th-buyer">Buyer</th>
+                                    <th data-i18n="th-entity">Supplier / Category</th>
+                                    <th class="text-end" style="width: 135px;" data-i18n="th-pleito">Requested Claim</th>
+                                    <th class="text-end" style="width: 145px;" data-i18n="th-saving">Savings / Gains</th>
+                                    <th class="text-center" style="width: 95px;" data-i18n="th-variation">% Change</th>
+                                    <th class="text-center" style="width: 115px;" data-i18n="th-materials">Materials</th>
+                                    <th class="text-center" style="width: 60px;" data-i18n="th-obs">Obs.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyInsertedRecords">
+                                <tr>
+                                    <td colspan="11" class="text-center py-4 text-muted fw-bold" data-i18n="msg-loading">Loading records from Supabase...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Footer -->
+                    <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="small text-muted fw-semibold" id="lblTablePagInfo">Showing 0 of 0</span>
+                            <div class="d-flex align-items-center">
+                                <span class="small text-muted me-2" data-i18n="lbl-per-page">Display:</span>
+                                <select id="selectPageSize" class="form-select form-select-sm bg-white border font-monospace fw-bold" onchange="changePageSize(this.value)" style="width: 100px;">
+                                    <option value="10" selected>10 / pg</option>
+                                    <option value="20">20 / pg</option>
+                                    <option value="50">50 / pg</option>
+                                    <option value="100">100 / pg</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="tablePagButtons" class="d-flex align-items-center"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL DETALHAMENTO DE MATERIAIS -->
+    <div class="modal fade" id="modalMateriaisItem" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header bg-primary text-white py-3 px-4">
+                    <div>
+                        <h5 class="modal-title fw-bold text-white mb-0" data-i18n="modal-mat-title">Materials Composition of Launch</h5>
+                        <p class="text-white-50 small mb-0" data-i18n="modal-mat-subtitle">Individual items and prices breakdown</p>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="bg-white p-3 rounded-3 border shadow-sm h-100">
+                                <span class="text-muted small fw-bold d-block mb-1" data-i18n="lbl-entity">ENTITY / SUPPLIER</span>
+                                <h6 class="fw-bold text-dark mb-0" id="modalInfoEntity">-</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="bg-white p-3 rounded-3 border shadow-sm h-100">
+                                <span class="text-muted small fw-bold d-block mb-1" data-i18n="lbl-buyer">BUYER</span>
+                                <h6 class="fw-bold text-primary mb-0" id="modalInfoComprador">-</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="bg-white p-3 rounded-3 border shadow-sm h-100">
+                                <span class="text-muted small fw-bold d-block mb-1" data-i18n="lbl-bu">BUSINESS UNIT</span>
+                                <h6 class="fw-bold text-dark mb-0" id="modalInfoBU">-</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="bg-white p-3 rounded-3 border shadow-sm h-100">
+                                <span class="text-muted small fw-bold d-block mb-1" data-i18n="lbl-impl-date">EFFECTIVE DATE</span>
+                                <h6 class="fw-bold text-success mb-0" id="modalInfoData">-</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" style="font-size:0.88rem;">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th class="text-center" style="width: 45px;">#</th>
+                                        <th style="width: 140px;" data-i18n="th-code">Mat. Code</th>
+                                        <th data-i18n="th-desc">Description</th>
+                                        <th class="text-end" style="width: 130px;" data-i18n="th-price-before">Price Before</th>
+                                        <th class="text-end" style="width: 130px;" data-i18n="th-price-after">Price After</th>
+                                        <th class="text-end" style="width: 130px;" data-i18n="th-vol">Annual Vol</th>
+                                        <th class="text-end" style="width: 150px;" data-i18n="th-reduction-total">Annual Impact</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyModalMateriais">
+                                    <tr><td colspan="7" class="text-center py-4 text-muted">Loading materials...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-white py-3 px-4 justify-content-between">
+                    <span class="fw-bold text-dark" id="modalMateriaisTotalInfo">Total materials: 0</span>
+                    <button type="button" class="btn btn-secondary px-4 fw-bold rounded-pill" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL OBSERVAÇÕES & E-MAIL -->
+    <div class="modal fade" id="modalComentariosItem" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header bg-primary text-white py-3 px-4">
+                    <div>
+                        <h5 class="modal-title fw-bold text-white mb-0">Comments & Observations</h5>
+                        <p class="text-white-50 small mb-0">Record details</p>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="bg-white p-3 rounded-3 border shadow-sm">
+                        <div class="d-flex justify-content-between text-muted small fw-bold mb-2 border-bottom pb-2">
+                            <span class="text-dark" id="modalCommentEntity">-</span>
+                            <span class="text-primary font-monospace" id="modalCommentDate">-</span>
+                        </div>
+                        <div class="p-3 bg-light rounded-3 border text-dark mt-2" id="modalCommentBody" style="white-space: pre-wrap; font-size: 0.92rem; min-height: 80px;">
+                            -
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-white py-2 px-4 justify-content-between">
+                    <div>
+                        <button type="button" class="btn btn-outline-primary px-3 fw-bold rounded-pill me-2 shadow-sm" onclick="copyCurrentCommentModalTable()"><i class="fas fa-copy me-2"></i>Copy Info</button>
+                        <button type="button" class="btn btn-primary px-3 fw-bold rounded-pill shadow-sm" onclick="sendEmailFromCurrentCommentModal()"><i class="fas fa-paper-plane me-2"></i>Send Email</button>
+                    </div>
+                    <button type="button" class="btn btn-secondary px-4 fw-bold rounded-pill" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Page Logic Script -->
+    <script>
+        // Supabase Client Config
+        const SUPABASE_URL = "https://fqnfyfwcntwhbwuxdmwa.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_YKflgiQ6wQv8qxQe_1lqcw_W4gfHVpt";
+        const _supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+        // i18n Translations Dictionary
+        const translations = {
+            'en': {
+                'nav-reajuste': 'Price Adjustment',
+                'nav-reducao': 'Cost Reduction',
+                'nav-tabela': 'Records Table',
+                'main-tabela-title': 'Opportunities Table',
+                'main-tabela-subtitle': 'Detailed query of Cost Reduction and Cost Avoidance records (Interman, Solo EUA, Solo DEU, Solo CHN)',
+                'badge-filtered': 'Except Portáteis BR',
+                'btn-new-reduction': 'New Reduction',
+                'lbl-bu': 'Business Unit',
+                'lbl-search': 'Search',
+                'opt-all-except-br': 'All (Except Portáteis BR)',
+                'ph-search': 'Buyer, supplier, category...',
+                'tab-all': 'All',
+                'tab-reductions': 'Reductions',
+                'tab-reajustes': 'Adjustments',
+                'btn-export-csv': 'Export CSV',
+                'th-type': 'Type',
+                'th-date': 'Effective Date',
+                'th-bu': 'Business Unit',
+                'th-buyer': 'Buyer',
+                'th-entity': 'Supplier / Category',
+                'th-pleito': 'Requested Claim',
+                'th-saving': 'Savings / Gains',
+                'th-variation': '% Change',
+                'th-materials': 'Materials',
+                'th-obs': 'Obs.',
+                'msg-loading': 'Loading records from Supabase...',
+                'msg-empty': 'No records found for the applied filters (Portáteis BR excluded).',
+                'lbl-per-page': 'Display:',
+                'modal-mat-title': 'Materials Composition of Launch',
+                'modal-mat-subtitle': 'Individual items and prices breakdown',
+                'lbl-entity': 'ENTITY / SUPPLIER',
+                'lbl-buyer': 'BUYER',
+                'lbl-impl-date': 'EFFECTIVE DATE',
+                'th-code': 'Mat. Code',
+                'th-desc': 'Description',
+                'th-price-before': 'Price Before',
+                'th-price-after': 'Price After',
+                'th-vol': 'Annual Vol',
+                'th-reduction-total': 'Annual Impact'
+            },
+            'pt-BR': {
+                'nav-reajuste': 'Reajuste de Preço',
+                'nav-reducao': 'Redução de Custo',
+                'nav-tabela': 'Tabela de Registros',
+                'main-tabela-title': 'Tabela de Oportunidades',
+                'main-tabela-subtitle': 'Consulta detalhada de lançamentos de Cost Reduction e Cost Avoidance (Interman, Solo EUA, Solo DEU, Solo CHN)',
+                'badge-filtered': 'Exceto Portáteis BR',
+                'btn-new-reduction': 'Nova Redução',
+                'lbl-bu': 'Unidade de Negócio',
+                'lbl-search': 'Buscar',
+                'opt-all-except-br': 'Todas (Exceto Portáteis BR)',
+                'ph-search': 'Comprador, fornecedor, categoria...',
+                'tab-all': 'Todos',
+                'tab-reductions': 'Reductions',
+                'tab-reajustes': 'Reajustes',
+                'btn-export-csv': 'Exportar CSV',
+                'th-type': 'Tipo',
+                'th-date': 'Data Vigência',
+                'th-bu': 'Business Unit',
+                'th-buyer': 'Comprador',
+                'th-entity': 'Fornecedor / Categoria',
+                'th-pleito': 'Pleito Solicitado',
+                'th-saving': 'Ganhos / Saving',
+                'th-variation': '% Variação',
+                'th-materials': 'Materiais',
+                'th-obs': 'Obs.',
+                'msg-loading': 'Carregando registros do Supabase...',
+                'msg-empty': 'Nenhum registro encontrado para os filtros aplicados (dados da Portáteis BR desconsiderados).',
+                'lbl-per-page': 'Exibir:',
+                'modal-mat-title': 'Composição de Materiais do Lançamento',
+                'modal-mat-subtitle': 'Detalhamento individual dos insumos e preços',
+                'lbl-entity': 'ENTIDADE / FORNECEDOR',
+                'lbl-buyer': 'COMPRADOR',
+                'lbl-impl-date': 'DATA VIGÊNCIA',
+                'th-code': 'Cód. Material',
+                'th-desc': 'Descrição do Material',
+                'th-price-before': 'Preço Antes',
+                'th-price-after': 'Preço Depois',
+                'th-vol': 'Vol. Anual',
+                'th-reduction-total': 'Impacto Anual'
+            },
+            'th': {
+                'nav-reajuste': 'ปรับราคาขึ้น',
+                'nav-reducao': 'ลดต้นทุน',
+                'nav-tabela': 'ตารางบันทึก',
+                'main-tabela-title': 'ตารางโอกาสทางธุรกิจ',
+                'main-tabela-subtitle': 'การตรวจสอบรายการบันทึก (ยกเว้น Portáteis BR)',
+                'badge-filtered': 'ยกเว้น Portáteis BR',
+                'btn-new-reduction': 'สร้างรายการลดต้นทุน',
+                'lbl-bu': 'หน่วยธุรกิจ',
+                'lbl-search': 'ค้นหา',
+                'opt-all-except-br': 'ทั้งหมด (ยกเว้น Portáteis BR)',
+                'ph-search': 'ผู้จัดซื้อ, ซัพพลายเออร์...',
+                'tab-all': 'ทั้งหมด',
+                'tab-reductions': 'ลดราคา',
+                'tab-reajustes': 'ปรับราคา',
+                'btn-export-csv': 'ส่งออก CSV',
+                'th-type': 'ประเภท',
+                'th-date': 'วันที่เริ่มมีผล',
+                'th-bu': 'หน่วยธุรกิจ',
+                'th-buyer': 'ผู้จัดซื้อ',
+                'th-entity': 'ซัพพลายเออร์ / หมวดหมู่',
+                'th-pleito': 'ราคาเสนอ',
+                'th-saving': 'ผลประหยัด',
+                'th-variation': '% ความผันผวน',
+                'th-materials': 'วัตถุดิบ',
+                'th-obs': 'หมายเหตุ',
+                'msg-loading': 'กำลังโหลดข้อมูล...',
+                'msg-empty': 'ไม่พบรายการตามเงื่อนไข (ไม่รวม Portáteis BR)',
+                'lbl-per-page': 'แสดง:',
+                'modal-mat-title': 'รายละเอียดวัตถุดิบ',
+                'modal-mat-subtitle': 'รายการสินค้าและราคาสินค้า',
+                'lbl-entity': 'องค์กร / ซัพพลายเออร์',
+                'lbl-buyer': 'ผู้จัดซื้อ',
+                'lbl-impl-date': 'วันที่เริ่มมีผล',
+                'th-code': 'รหัส',
+                'th-desc': 'คำอธิบาย',
+                'th-price-before': 'ราคาก่อน',
+                'th-price-after': 'ราคาหลัง',
+                'th-vol': 'ปริมาณต่อปี',
+                'th-reduction-total': 'ผลกระทบต่อปี'
+            },
+            'de': {
+                'nav-reajuste': 'Preisanpassung',
+                'nav-reducao': 'Kostenreduzierung',
+                'nav-tabela': 'Datentabelle',
+                'main-tabela-title': 'Chancentabelle',
+                'main-tabela-subtitle': 'Detaillierte Abfrage von Datensätzen (ohne Portáteis BR)',
+                'badge-filtered': 'Ausgenommen Portáteis BR',
+                'btn-new-reduction': 'Neue Reduzierung',
+                'lbl-bu': 'Geschäftsbereich',
+                'lbl-search': 'Suchen',
+                'opt-all-except-br': 'Alle (ohne Portáteis BR)',
+                'ph-search': 'Einkäufer, Lieferant...',
+                'tab-all': 'Alle',
+                'tab-reductions': 'Reduzierungen',
+                'tab-reajustes': 'Anpassungen',
+                'btn-export-csv': 'CSV Exportieren',
+                'th-type': 'Typ',
+                'th-date': 'Gültigkeitsdatum',
+                'th-bu': 'Geschäftsbereich',
+                'th-buyer': 'Einkäufer',
+                'th-entity': 'Lieferant / Kategorie',
+                'th-pleito': 'Forderung',
+                'th-saving': 'Einsparung',
+                'th-variation': '% Abweichung',
+                'th-materials': 'Materialien',
+                'th-obs': 'Bemerkung',
+                'msg-loading': 'Daten werden aus Supabase geladen...',
+                'msg-empty': 'Keine Datensätze gefunden (Portáteis BR ausgeschlossen).',
+                'lbl-per-page': 'Anzeigen:',
+                'modal-mat-title': 'Zusammensetzung der Materialien',
+                'modal-mat-subtitle': 'Einzelaufstellung der Positionen und Preise',
+                'lbl-entity': 'LIEFERANT / ENTITÄT',
+                'lbl-buyer': 'EINKÄUFER',
+                'lbl-impl-date': 'GÜLTIGKEITSDATUM',
+                'th-code': 'Mat.-Code',
+                'th-desc': 'Beschreibung',
+                'th-price-before': 'Preis Vorher',
+                'th-price-after': 'Preis Nachher',
+                'th-vol': 'Jahresvolumen',
+                'th-reduction-total': 'Jahreswirkung'
+            }
+        };
+
+        let currentLang = 'en';
+
+        function getTranslation(key) {
+            const dict = translations[currentLang] || translations['en'];
+            return dict[key] || (translations['en'][key] || translations['pt-BR'][key] || '');
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const dict = translations[lang] || translations['en'];
+
+            const selectEl = document.getElementById('language-select');
+            if (selectEl && selectEl.value !== lang) {
+                selectEl.value = lang;
+            }
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) el.textContent = dict[key];
+            });
+
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if (dict[key]) el.placeholder = dict[key];
+            });
+
+            renderTable();
+        }
+
+        // Table State & Data
+        let state = {
+            allRecords: [],
+            filteredRecords: [],
+            filterType: 'todos',
+            buFilter: 'Todas',
+            searchQuery: '',
+            currentPage: 1,
+            pageSize: 10,
+            activeModalRecord: null
+        };
+
+        async function fetchSupabaseData() {
+            if (!_supabase) return;
+            try {
+                // Query Cost Reduction records
+                const { data: reductionData, error: redErr } = await _supabase
+                    .from('reducao_custos')
+                    .select('*');
+
+                if (redErr) console.error("Error fetching reducao_custos:", redErr);
+
+                // Query Cost Avoidance records
+                const { data: avoidanceData, error: caErr } = await _supabase
+                    .from('reajuste_precos')
+                    .select('*');
+
+                if (caErr) console.error("Error fetching reajuste_precos:", caErr);
+
+                const combined = [];
+
+                // Process Cost Reductions (ALWAYS EXCLUDING 'Portáteis BR')
+                (reductionData || []).forEach(r => {
+                    const bu = r.business_unit || r.BusinessUnit || '';
+                    if (bu === 'Portáteis BR' || bu.includes('Portáteis BR')) return; // EXCLUDE PORTÁTEIS BR
+
+                    // Check all possible field names for materials list
+                    const rawMat = r.material_list || r.json_materiais || r.JsonMateriais || r.reducao_materiais || null;
+
+                    combined.push({
+                        id: `red_${r.id}`,
+                        dbId: r.id,
+                        type: 'reduction',
+                        typeLabel: 'Cost Reduction',
+                        badgeClass: 'success',
+                        date: r.data_prevista || r.DataPrevista || r.created_at || '-',
+                        bu: bu || 'Interman',
+                        comprador: r.comprador || r.Comprador || '-',
+                        entity: r.categoria || r.Categoria || 'Geral',
+                        impactoPleito: parseFloat(r.reducao_anual_total || r.ReducaoAnualTotal) || 0,
+                        valor: parseFloat(r.reducao_anual_total || r.ReducaoAnualTotal) || 0,
+                        percentual: parseFloat(r.percentual_reducao || r.PercentualReducao) || 0,
+                        moeda: r.moeda || r.Moeda || 'USD',
+                        comentarios: r.comentarios || r.Comentarios || '-',
+                        jsonMateriais: rawMat
+                    });
+                });
+
+                // Process Cost Avoidance (ALWAYS EXCLUDING 'Portáteis BR')
+                (avoidanceData || []).forEach(ca => {
+                    const bu = ca.business_unit || ca.BusinessUnit || '';
+                    if (bu === 'Portáteis BR' || bu.includes('Portáteis BR')) return; // EXCLUDE PORTÁTEIS BR
+
+                    const val = parseFloat(ca.impacto_neutralizado || ca.ImpactoNeutralizado || ca.impacto_anual_total || 0);
+                    const pleito = parseFloat(ca.impacto_pleito || ca.ImpactoPleito || val);
+
+                    const rawMat = ca.json_materiais || ca.JsonMateriais || ca.material_list || ca.reajuste_materiais || null;
+
+                    combined.push({
+                        id: `ca_${ca.id}`,
+                        dbId: ca.id,
+                        type: 'costavoidance',
+                        typeLabel: 'Cost Avoidance',
+                        badgeClass: 'primary',
+                        date: ca.data_vigencia || ca.DataVigencia || ca.created_at || '-',
+                        bu: bu || 'Interman',
+                        comprador: ca.comprador || ca.Comprador || '-',
+                        entity: ca.fornecedor || ca.Fornecedor || 'Fornecedor',
+                        impactoPleito: pleito,
+                        valor: val,
+                        percentual: parseFloat(ca.percentual_reajuste || ca.PercentualReajuste) || 0,
+                        moeda: ca.moeda || ca.Moeda || 'USD',
+                        comentarios: ca.comentarios || ca.Comentarios || '-',
+                        jsonMateriais: rawMat
+                    });
+                });
+
+                // Sort newest first
+                combined.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+                state.allRecords = combined;
+                applyFilters();
+
+            } catch (err) {
+                console.error("Error loading data:", err);
+            }
+        }
+
+        function setTableTypeFilter(type, btnEl) {
+            state.filterType = type;
+            state.currentPage = 1;
+            document.querySelectorAll('.btn-filter-tab').forEach(b => {
+                b.classList.remove('btn-primary', 'active');
+                b.classList.add('btn-outline-secondary');
+            });
+            if (btnEl) {
+                btnEl.classList.remove('btn-outline-secondary');
+                btnEl.classList.add('btn-primary', 'active');
+            }
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const bu = document.getElementById('filter-bu')?.value || 'Todas';
+            const q = (document.getElementById('inputTableSearch')?.value || '').toLowerCase().trim();
+
+            state.buFilter = bu;
+            state.searchQuery = q;
+
+            state.filteredRecords = state.allRecords.filter(r => {
+                // Ensure Portáteis BR is NEVER shown
+                if (r.bu === 'Portáteis BR') return false;
+
+                // BU filter
+                if (bu !== 'Todas' && r.bu !== bu) return false;
+
+                // Type filter
+                if (state.filterType === 'reduction' && r.type !== 'reduction') return false;
+                if (state.filterType === 'costavoidance' && r.type !== 'costavoidance') return false;
+
+                // Search query
+                if (q) {
+                    const searchStr = `${r.bu} ${r.comprador} ${r.entity} ${r.comentarios} ${r.typeLabel}`.toLowerCase();
+                    if (!searchStr.includes(q)) return false;
+                }
+
+                return true;
+            });
+
+            state.currentPage = 1;
+            renderTable();
+        }
+
+        function changePageSize(val) {
+            state.pageSize = parseInt(val) || 10;
+            state.currentPage = 1;
+            renderTable();
+        }
+
+        function changePage(p) {
+            state.currentPage = p;
+            renderTable();
+        }
+
+        function formatCurrency(val, currencyCode) {
+            const num = parseFloat(val) || 0;
+            const symbols = { 'USD': '$', 'BRL': 'R$', 'EUR': '€', 'THB': '฿', 'CNY': '¥' };
+            const sym = symbols[currencyCode] || '$';
+            return `${sym} ${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        function parseMaterialsArray(rawMat) {
+            if (!rawMat) return [];
+            if (Array.isArray(rawMat)) return rawMat;
+            if (typeof rawMat === 'string') {
+                try {
+                    let parsed = JSON.parse(rawMat);
+                    if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+                    if (Array.isArray(parsed)) return parsed;
+                    if (parsed && typeof parsed === 'object') return Object.values(parsed);
+                } catch(e) {
+                    console.error("Error parsing rawMat JSON:", e);
+                }
+            } else if (typeof rawMat === 'object') {
+                return Object.values(rawMat);
+            }
+            return [];
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tbodyInsertedRecords');
+            if (!tbody) return;
+
+            const filtered = state.filteredRecords;
+            const total = filtered.length;
+
+            if (total === 0) {
+                tbody.innerHTML = `<tr><td colspan="11" class="text-center py-4 text-muted fw-bold">${getTranslation('msg-empty')}</td></tr>`;
+                document.getElementById('lblTablePagInfo').textContent = (currentLang === 'pt-BR' ? 'Mostrando 0 de 0' : 'Showing 0 of 0');
+                document.getElementById('tablePagButtons').innerHTML = '';
+                return;
+            }
+
+            const totalPages = Math.ceil(total / state.pageSize);
+            if (state.currentPage > totalPages) state.currentPage = totalPages;
+            if (state.currentPage < 1) state.currentPage = 1;
+
+            const startIdx = (state.currentPage - 1) * state.pageSize;
+            const endIdx = Math.min(startIdx + state.pageSize, total);
+            const pageData = filtered.slice(startIdx, endIdx);
+
+            let html = '';
+            pageData.forEach((item, index) => {
+                let dateFormatted = item.date;
+                if (item.date && item.date.length === 10 && item.date.includes('-')) {
+                    const [y, m, d] = item.date.split('-');
+                    dateFormatted = `${d}/${m}/${y}`;
+                }
+
+                const materials = parseMaterialsArray(item.jsonMateriais);
+                const matCount = materials.length;
+
+                const matBtn = matCount > 0 
+                    ? `<button type="button" class="btn-table-action" onclick="openMaterialsModal('${item.id}')">${currentLang === 'pt-BR' ? 'Materiais' : 'Materials'} (${matCount})</button>`
+                    : `<span class="text-muted font-monospace">-</span>`;
+
+                const commentBtn = `<button type="button" class="btn-table-obs" onclick="openCommentModal('${item.id}')" title="View details">?</button>`;
+
+                const pctBadgeClass = item.type === 'reduction' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-warning-subtle text-dark border border-warning-subtle';
+                const pctText = `${item.percentual > 0 ? '+' : ''}${item.percentual.toFixed(2)}%`;
+
+                html += `
+                    <tr>
+                        <td class="text-center font-monospace text-muted small">${startIdx + index + 1}</td>
+                        <td>
+                            <span class="badge bg-${item.badgeClass}-subtle text-${item.badgeClass} border border-${item.badgeClass}-subtle px-2 py-1" style="font-size:0.75rem;">
+                                <i class="fas ${item.type === 'reduction' ? 'fa-arrow-down-long me-1' : 'fa-hand-holding-dollar me-1'}"></i>${item.typeLabel}
+                            </span>
+                        </td>
+                        <td class="font-monospace small text-dark fw-semibold">${dateFormatted}</td>
+                        <td><span class="badge bg-dark text-white font-monospace">${item.bu}</span></td>
+                        <td class="fw-bold text-dark">${item.comprador}</td>
+                        <td class="fw-bold text-secondary">${item.entity}</td>
+                        <td class="text-end font-monospace text-muted">${formatCurrency(item.impactoPleito, item.moeda)}</td>
+                        <td class="text-end fw-extrabold text-primary fs-6 font-monospace">${formatCurrency(item.valor, item.moeda)}</td>
+                        <td class="text-center"><span class="badge ${pctBadgeClass} font-monospace fs-6 px-2 py-1">${pctText}</span></td>
+                        <td class="text-center">${matBtn}</td>
+                        <td class="text-center">${commentBtn}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+            const pagPrefix = currentLang === 'pt-BR' ? 'Mostrando' : 'Showing';
+            const pagOf = currentLang === 'pt-BR' ? 'de' : 'of';
+            document.getElementById('lblTablePagInfo').textContent = `${pagPrefix} ${startIdx + 1} - ${endIdx} ${pagOf} ${total.toLocaleString('en-US')}`;
+
+            // Render Pagination Buttons
+            let btnHtml = '<ul class="pagination pagination-sm m-0 shadow-sm">';
+            const prevClass = state.currentPage === 1 ? 'disabled' : '';
+            const prevText = currentLang === 'pt-BR' ? 'Anterior' : 'Previous';
+            const nextText = currentLang === 'pt-BR' ? 'Próximo' : 'Next';
+
+            btnHtml += `<li class="page-item ${prevClass}"><a class="page-link rounded-start-pill px-3" href="#" onclick="changePage(${state.currentPage - 1}); return false;">${prevText}</a></li>`;
+
+            for (let p = 1; p <= totalPages; p++) {
+                if (p === 1 || p === totalPages || (p >= state.currentPage - 2 && p <= state.currentPage + 2)) {
+                    const active = p === state.currentPage ? 'active fw-bold' : '';
+                    btnHtml += `<li class="page-item ${active}"><a class="page-link" href="#" onclick="changePage(${p}); return false;">${p}</a></li>`;
+                }
+            }
+
+            const nextClass = state.currentPage === totalPages ? 'disabled' : '';
+            btnHtml += `<li class="page-item ${nextClass}"><a class="page-link rounded-end-pill px-3" href="#" onclick="changePage(${state.currentPage + 1}); return false;">${nextText}</a></li>`;
+            btnHtml += '</ul>';
+
+            document.getElementById('tablePagButtons').innerHTML = btnHtml;
+        }
+
+        function openMaterialsModal(id) {
+            const item = state.allRecords.find(r => r.id === id);
+            if (!item) return;
+
+            document.getElementById('modalInfoEntity').textContent = item.entity;
+            document.getElementById('modalInfoComprador').textContent = item.comprador;
+            document.getElementById('modalInfoBU').textContent = item.bu;
+            document.getElementById('modalInfoData').textContent = item.date;
+
+            const tbody = document.getElementById('tbodyModalMateriais');
+            const materials = parseMaterialsArray(item.jsonMateriais);
+
+            if (!materials || materials.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-3 text-muted">${currentLang === 'pt-BR' ? 'Nenhum detalhe de material cadastrado.' : 'No material details registered.'}</td></tr>`;
+                document.getElementById('modalMateriaisTotalInfo').textContent = `${currentLang === 'pt-BR' ? 'Total de materiais' : 'Total materials'}: 0`;
+            } else {
+                let html = '';
+                materials.forEach((m, idx) => {
+                    const code = m.cod_material || m.codMaterial || m.code || m.CodMat || m.Cod_Material || '-';
+                    const desc = m.descricao || m.desc || m.Descricao || m.descricao_material || '-';
+                    const priceBefore = parseFloat(m.preco_antes || m.priceBefore || m.PrecoAntes || m.preco_atual || 0);
+                    const priceAfter = parseFloat(m.preco_depois || m.priceAfter || m.PrecoDepois || m.preco_final || 0);
+                    const vol = parseFloat(m.volume_anual || m.vol || m.VolumeAnual || 0);
+                    const impact = parseFloat(m.reducao_anual || m.impacto_anual || ((priceBefore - priceAfter) * vol));
+
+                    html += `
+                        <tr>
+                            <td class="text-center text-muted font-monospace">${idx + 1}</td>
+                            <td class="fw-bold font-monospace">${code}</td>
+                            <td class="fw-semibold">${desc}</td>
+                            <td class="text-end font-monospace">${formatCurrency(priceBefore, item.moeda)}</td>
+                            <td class="text-end font-monospace text-success fw-bold">${formatCurrency(priceAfter, item.moeda)}</td>
+                            <td class="text-end font-monospace">${vol.toLocaleString('en-US')}</td>
+                            <td class="text-end font-monospace text-primary fw-extrabold">${formatCurrency(impact, item.moeda)}</td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+                document.getElementById('modalMateriaisTotalInfo').textContent = `${currentLang === 'pt-BR' ? 'Total de materiais' : 'Total materials'}: ${materials.length}`;
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('modalMateriaisItem'));
+            modal.show();
+        }
+
+        function openCommentModal(id) {
+            const item = state.allRecords.find(r => r.id === id);
+            if (!item) return;
+            state.activeModalRecord = item;
+
+            document.getElementById('modalCommentEntity').textContent = `${item.bu} • ${item.comprador} • ${item.entity}`;
+            document.getElementById('modalCommentDate').textContent = item.date;
+            document.getElementById('modalCommentBody').textContent = item.comentarios && item.comentarios !== '-' ? item.comentarios : (currentLang === 'pt-BR' ? 'Sem observações.' : 'No comments registered.');
+
+            const modal = new bootstrap.Modal(document.getElementById('modalComentariosItem'));
+            modal.show();
+        }
+
+        function copyCurrentCommentModalTable() {
+            if (!state.activeModalRecord) return;
+            const r = state.activeModalRecord;
+            const text = `Type: ${r.typeLabel}\nBU: ${r.bu}\nBuyer: ${r.comprador}\nSupplier/Category: ${r.entity}\nDate: ${r.date}\nAmount: ${formatCurrency(r.valor, r.moeda)}\nComments: ${r.comentarios}`;
+            navigator.clipboard.writeText(text);
+            alert("Information copied to clipboard!");
+        }
+
+        function sendEmailFromCurrentCommentModal() {
+            if (!state.activeModalRecord) return;
+            const r = state.activeModalRecord;
+            const subject = encodeURIComponent(`[KPISupplyChain] Opportunity - ${r.entity} (${r.bu})`);
+            const body = encodeURIComponent(`Hello,\n\nHere are the record details:\n- Type: ${r.typeLabel}\n- BU: ${r.bu}\n- Buyer: ${r.comprador}\n- Entity/Supplier: ${r.entity}\n- Date: ${r.date}\n- Impact/Savings: ${formatCurrency(r.valor, r.moeda)}\n- Comments: ${r.comentarios}\n\nBest regards,`);
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        function exportCSV() {
+            const data = state.filteredRecords;
+            if (!data || data.length === 0) {
+                alert("No records to export.");
+                return;
+            }
+
+            let csv = "ID;Type;Date;BU;Buyer;Entity_Category;Claim;Savings_Neutralized;Percentage;Currency;Comments\n";
+            data.forEach(r => {
+                csv += `"${r.id}";"${r.typeLabel}";"${r.date}";"${r.bu}";"${r.comprador}";"${r.entity}";"${r.impactoPleito}";"${r.valor}";"${r.percentual}%";"${r.moeda}";"${(r.comentarios || '').replace(/"/g, '""')}"\n`;
+            });
+
+            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `opportunities_table_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Init - DEFAULT TO ENGLISH ('en')
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const dateDisplay = document.getElementById('current-date-display');
+            if (dateDisplay) dateDisplay.textContent = today.toLocaleDateString('en-US');
+
+            changeLanguage('en');
+            fetchSupabaseData();
+        });
+    </script>
+</body>
+</html>
